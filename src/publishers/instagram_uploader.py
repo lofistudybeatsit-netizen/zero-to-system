@@ -62,25 +62,31 @@ class InstagramUploader:
             return {'success': False, 'error': str(e)}
 
     def _upload_to_temp_host(self, video_path: str) -> Optional[str]:
-        print(f"   📤 Upload temporaneo su file.io: {video_path}")
+        """
+        Upload video su transfer.sh (gratuito, 14 giorni) per ottenere URL pubblico.
+        Instagram Graph API richiede che il video sia accessibile pubblicamente.
+        """
+        print(f"   📤 Upload temporaneo su transfer.sh: {video_path}")
         try:
+            filename = os.path.basename(video_path)
             with open(video_path, 'rb') as f:
-                response = requests.post(
-                'https://file.io',
-                files={'file': f},
-                timeout=60
-            )
+                response = requests.put(
+                    f'https://transfer.sh/{filename}',
+                    data=f,
+                    timeout=120
+                )
+            
             print(f"   DEBUG status: {response.status_code}")
-            print(f"   DEBUG body: {response.text[:500]}")
-            result = response.json()
-            print(f"   DEBUG json: {result}")
-            if 'link' in result:
-                url = result['link']
+            print(f"   DEBUG body: {response.text[:200]}")
+            
+            if response.status_code == 200:
+                url = response.text.strip()
                 print(f"   ✅ URL temporaneo: {url}")
                 return url
             else:
-                print(f"   ❌ file.io error: {result}")
+                print(f"   ❌ transfer.sh error: {response.status_code}")
                 return None
+                
         except Exception as e:
             print(f"   ❌ Errore upload temporaneo: {e}")
             import traceback
