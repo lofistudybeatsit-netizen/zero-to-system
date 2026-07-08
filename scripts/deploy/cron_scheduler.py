@@ -4,7 +4,7 @@ Cron Scheduler - Gestione scheduling automatico dei contenuti
 Usage:
     python cron_scheduler.py --run-now
     python cron_scheduler.py --daemon
-    python cron_scheduler.py --run-now story --test-connectivity  # Testa rete prima
+    python cron_scheduler.py --run-now story --test-connectivity
 """
 
 import os
@@ -14,20 +14,16 @@ import yaml
 import time
 import argparse
 import schedule
+import subprocess
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Optional
-
-# === IMPORT MOVIEPY ===
-from moviepy.editor import AudioFileClip, ImageClip
-from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 from content_engine.music_video_factory import MusicVideoFactory
 from content_engine.story_scraper import StoryScraper
 from voice_synthesis.tts_engine import TTSEngine
 
-# === IMPORT PUBLISHER ===
 from publishers.youtube_uploader import YouTubeUploader
 from publishers.instagram_uploader import InstagramUploader
 
@@ -45,7 +41,6 @@ class ContentScheduler:
         self.story_scraper = StoryScraper(config_path)
         self.tts_engine = TTSEngine(config_path)
 
-        # === INIZIALIZZA PUBLISHER ===
         self._init_publishers()
 
     def _init_publishers(self):
@@ -110,7 +105,7 @@ class ContentScheduler:
             return False
 
     def job_music_channel(self):
-        """Job Canale Musica: genera video + upload YouTube + upload Instagram Reels (shorts musicali)"""
+        """Job Canale Musica: genera video + upload YouTube + upload Instagram Reels"""
         self.log("=" * 60)
         self.log("JOB: Music Channel - Inizio processing")
         try:
@@ -124,18 +119,13 @@ class ContentScheduler:
 
             self.log(f"   Video creato: {video_data['title']}")
             self.log(f"   Shorts generati: {len(shorts)}")
-            self.log("   Generazione completata, avvio upload...")
 
-            # === BLOCCO 1: UPLOAD YOUTUBE (video completo) ===
+            # === BLOCCO 1: UPLOAD YOUTUBE ===
             self.log("   --- BLOCCO 1: Upload YouTube ---")
             if self.youtube_uploader:
                 try:
                     video_path = video_data.get("video_path", "")
-                    self.log(f"   DEBUG: video_path = {video_path}")
-                    self.log(f"   DEBUG: exists? {os.path.exists(video_path) if video_path else 'N/A'}")
-
                     if video_path and Path(video_path).exists():
-                        self.log(f"   Upload YouTube: {video_path}")
                         yt_result = self.youtube_uploader.upload_video(
                             video_path=video_path,
                             title=video_data.get("title", "Lofi Study Beats"),
@@ -149,49 +139,27 @@ class ContentScheduler:
                         self.log(f"   ⚠️ Video path non valido: {video_path}")
                 except Exception as e:
                     self.log(f"   ❌ ERRORE YouTube upload: {str(e)}")
-                    import traceback
-                    self.log(f"   TRACEBACK: {traceback.format_exc()}")
             else:
                 self.log("   ⏭️ YouTube: uploader non configurato")
 
             # === BLOCCO 2: UPLOAD INSTAGRAM REELS (shorts musicali) ===
-            self.log("   --- BLOCCO 2: Upload Instagram Reels (shorts musica) ---")
+            self.log("   --- BLOCCO 2: Upload Instagram Reels ---")
             if self.instagram_uploader:
                 try:
-                    self.log(f"   DEBUG: shorts trovati = {len(shorts)}")
-
                     for i, short_path in enumerate(shorts[:3]):
-                        self.log(f"   DEBUG: short {i+1} path = {short_path}")
-                        self.log(f"   DEBUG: short {i+1} exists? {os.path.exists(short_path) if short_path else 'N/A'}")
-
                         if short_path and Path(short_path).exists():
-                            self.log(f"   Upload Instagram Reel {i+1}: {short_path}")
-
-                            # DEBUG: verifica dimensione file
-                            file_size = os.path.getsize(short_path)
-                            self.log(f"   DEBUG: file size = {file_size} bytes")
-
                             ig_result = self.instagram_uploader.upload_local_video(
                                 video_path=short_path,
                                 caption=f"{video_data.get('title', 'Lofi')} #lofi #studybeats #shorts"
                             )
-
-                            self.log(f"   DEBUG: ig_result type = {type(ig_result)}")
-                            self.log(f"   DEBUG: ig_result = {json.dumps(ig_result, indent=2)[:500]}")
-
                             if ig_result.get("success"):
-                                self.log(f"   ✅ Instagram Reel {i+1}: pubblicato - {ig_result.get('url', 'OK')}")
+                                self.log(f"   ✅ Instagram Reel {i+1}: pubblicato")
                             else:
-                                self.log(f"   ⚠️ Instagram Reel {i+1}: FALLITO")
-                                self.log(f"   ⚠️ Status: {ig_result.get('status', 'errore')}")
-                                self.log(f"   ⚠️ Error: {ig_result.get('error', 'nessun dettaglio')}")
+                                self.log(f"   ⚠️ Instagram Reel {i+1}: FALLITO - {ig_result.get('error')}")
                         else:
-                            self.log(f"   ⚠️ Short {i+1} path non valido o file mancante: {short_path}")
-
+                            self.log(f"   ⚠️ Short {i+1} non trovato")
                 except Exception as e:
                     self.log(f"   ❌ ERRORE Instagram upload: {str(e)}")
-                    import traceback
-                    self.log(f"   TRACEBACK: {traceback.format_exc()}")
             else:
                 self.log("   ⏭️ Instagram: uploader non configurato")
 
@@ -210,7 +178,7 @@ class ContentScheduler:
             # === FASE 1: Scraping storie ===
             self.log("   --- FASE 1: Scraping storie ---")
             stories = self.story_scraper.run(
-                sources=["hackernews", "wikipedia", "trivia", "jokes"],
+                sources=["hackernews", "trivia", "jokes"],  # RIMOSSO wikipedia
                 limit=20
             )
 
@@ -220,13 +188,30 @@ class ContentScheduler:
 
             self.log(f"   Trovate {len(stories)} storie")
 
-            # === FASE 2: Generazione TTS (audio) ===
-            self.log("   --- FASE 2: Generazione audio TTS ---")
+            # === FILTRO: scegli solo storie corte (max 500 caratteri) ===
+            MAX_SCRIPT_LENGTH = 500
+            MAX_STORIES = 2  # ← Solo 2 storie per evitare timeout
+            
+            filtered_stories = []
+            for story in stories:
+                script = story.get("script", "")
+                if len(script) <= MAX_SCRIPT_LENGTH:
+                    filtered_stories.append(story)
+                if len(filtered_stories) >= MAX_STORIES:
+                    break
+            
+            if not filtered_stories:
+                self.log(f"   ⚠️ Nessuna storia sotto i {MAX_SCRIPT_LENGTH} caratteri")
+                return
+
+            self.log(f"   Selezionate {len(filtered_stories)} storie corte")
+
+            # === FASE 2: Generazione TTS ===
+            self.log(f"   --- FASE 2: Generazione audio TTS ---")
             story_audio_files = []
 
-            for i, story in enumerate(stories[:3]):  # Max 3 storie
+            for i, story in enumerate(filtered_stories):
                 self.log(f"   Generazione TTS per storia {i+1}...")
-
                 try:
                     audio_path = self.tts_engine.generate_sync(
                         story["script"],
@@ -243,14 +228,13 @@ class ContentScheduler:
 
             self.log(f"   Audio generati: {len(story_audio_files)}")
 
-            # === FASE 3: Generazione video dalle storie ===
+            # === FASE 3: Generazione video con ffmpeg (alternativa a MoviePy) ===
             self.log("   --- FASE 3: Generazione video storie ---")
             story_video_files = []
 
             for i, story_data in enumerate(story_audio_files):
                 try:
-                    # Crea video semplice con audio + immagine statica
-                    video_path = self._create_story_video(
+                    video_path = self._create_story_video_ffmpeg(
                         audio_path=story_data["audio_path"],
                         title=story_data["title"],
                         output_path=f"output/story_videos/story_{i}.mp4"
@@ -266,43 +250,32 @@ class ContentScheduler:
 
             self.log(f"   Video storie generati: {len(story_video_files)}")
 
-            # === BLOCCO 4: UPLOAD INSTAGRAM REELS (storie) ===
-            self.log("   --- BLOCCO 4: Upload Instagram Reels (storie) ---")
+            # === BLOCCO 4: UPLOAD INSTAGRAM ===
+            self.log("   --- BLOCCO 4: Upload Instagram Reels ---")
             if self.instagram_uploader and story_video_files:
                 try:
-                    for i, story_video in enumerate(story_video_files[:3]):  # Max 3 reel
+                    for i, story_video in enumerate(story_video_files):
                         video_path = story_video["video_path"]
                         title = story_video["title"]
 
-                        self.log(f"   DEBUG: storia video {i+1} path = {video_path}")
-                        self.log(f"   DEBUG: exists? {os.path.exists(video_path)}")
-
                         if video_path and os.path.exists(video_path):
                             file_size = os.path.getsize(video_path)
-                            self.log(f"   DEBUG: file size = {file_size} bytes")
-
-                            self.log(f"   Upload Instagram Reel storia {i+1}: {title}")
+                            self.log(f"   Upload storia {i+1}: {title} ({file_size:,} bytes)")
 
                             ig_result = self.instagram_uploader.upload_local_video(
                                 video_path=video_path,
                                 caption=f"{title} #story #daily #facts"
                             )
 
-                            self.log(f"   DEBUG: ig_result = {json.dumps(ig_result, indent=2)[:500]}")
-
                             if ig_result.get("success"):
-                                self.log(f"   ✅ Instagram Storia Reel {i+1}: pubblicata")
+                                self.log(f"   ✅ Instagram Storia {i+1}: pubblicata")
                             else:
-                                self.log(f"   ⚠️ Instagram Storia Reel {i+1}: FALLITA")
-                                self.log(f"   ⚠️ Status: {ig_result.get('status', 'errore')}")
+                                self.log(f"   ⚠️ Instagram Storia {i+1}: FALLITA")
                                 self.log(f"   ⚠️ Error: {ig_result.get('error', 'nessun dettaglio')}")
                         else:
-                            self.log(f"   ⚠️ Video storia {i+1} non trovato: {video_path}")
-
+                            self.log(f"   ⚠️ Video storia {i+1} non trovato")
                 except Exception as e:
-                    self.log(f"   ❌ ERRORE Instagram upload storie: {str(e)}")
-                    import traceback
-                    self.log(f"   TRACEBACK: {traceback.format_exc()}")
+                    self.log(f"   ❌ ERRORE Instagram upload: {str(e)}")
             else:
                 if not self.instagram_uploader:
                     self.log("   ⏭️ Instagram: uploader non configurato")
@@ -316,52 +289,100 @@ class ContentScheduler:
             import traceback
             self.log(f"   TRACEBACK: {traceback.format_exc()}")
 
-    def _create_story_video(self, audio_path: str, title: str, output_path: str) -> Optional[str]:
+    def _create_story_video_ffmpeg(self, audio_path: str, title: str, output_path: str) -> Optional[str]:
         """
-        Crea un video semplice da un file audio + immagine statica.
-        Usa moviepy per combinare audio e immagine.
+        Crea video con ffmpeg direttamente (più affidabile di MoviePy su CI/CD).
+        Usa immagine statica + audio = video MP4.
         """
         try:
-            from moviepy.editor import AudioFileClip, ImageClip, CompositeVideoClip
-
             output_path = Path(output_path)
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # Carica audio
-            audio = AudioFileClip(audio_path)
-            duration = audio.duration
-
-            # Crea clip video con immagine statica
-            # Usa un'immagine di default o genera una semplice
+            # Crea immagine di background con PIL
             img_path = "assets/templates/story_background.jpg"
             if not os.path.exists(img_path):
-                # Se non c'è immagine, crea una nera
-                from PIL import Image
-                img = Image.new('RGB', (1080, 1920), color='black')
+                from PIL import Image, ImageDraw, ImageFont
+                
+                # Crea sfondo scuro
+                img = Image.new('RGB', (1080, 1920), color=(25, 25, 40))
+                draw = ImageDraw.Draw(img)
+                
+                # Aggiungi testo
+                try:
+                    font = ImageFont.truetype("arial.ttf", 50)
+                except:
+                    font = ImageFont.load_default()
+                
+                # Wrapping semplice
+                words = title.split()
+                lines = []
+                line = ""
+                for word in words:
+                    test_line = line + " " + word if line else word
+                    bbox = draw.textbbox((0, 0), test_line, font=font)
+                    if bbox[2] - bbox[0] < 900:
+                        line = test_line
+                    else:
+                        if line:
+                            lines.append(line)
+                        line = word
+                if line:
+                    lines.append(line)
+                
+                # Disegna testo centrato
+                y = 750
+                for line in lines[:6]:
+                    bbox = draw.textbbox((0, 0), line, font=font)
+                    w = bbox[2] - bbox[0]
+                    x = (1080 - w) // 2
+                    draw.text((x, y), line, fill=(255, 255, 255), font=font)
+                    y += 70
+                
                 img_path = "output/story_videos/temp_bg.jpg"
                 Path(img_path).parent.mkdir(parents=True, exist_ok=True)
                 img.save(img_path)
 
-            video = ImageClip(img_path, duration=duration)
-            video = video.set_audio(audio)
+            # Ottieni durata audio con ffprobe
+            duration_cmd = [
+                'ffprobe', '-v', 'error', '-show_entries', 'format=duration',
+                '-of', 'default=noprint_wrappers=1:nokey=1', audio_path
+            ]
+            result = subprocess.run(duration_cmd, capture_output=True, text=True, timeout=30)
+            duration = float(result.stdout.strip())
 
-            # Salva video
-            video.write_videofile(
-                str(output_path),
-                fps=24,
-                codec='libx264',
-                audio_codec='aac',
-                temp_audiofile='output/story_videos/temp-audio.m4a',
-                remove_temp=True
-            )
+            # Genera video con ffmpeg
+            self.log(f"   🎬 ffmpeg: genero video ({duration:.1f}s)")
+            
+            cmd = [
+                'ffmpeg', '-y',
+                '-loop', '1',
+                '-i', img_path,
+                '-i', audio_path,
+                '-c:v', 'libx264',
+                '-tune', 'stillimage',
+                '-c:a', 'aac',
+                '-b:a', '128k',
+                '-pix_fmt', 'yuv420p',
+                '-vf', 'scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2',
+                '-shortest',
+                '-t', str(min(duration, 60)),  # Max 60 secondi
+                str(output_path)
+            ]
 
-            audio.close()
-            video.close()
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+            
+            if result.returncode == 0 and output_path.exists():
+                self.log(f"   ✅ ffmpeg OK: {output_path.name}")
+                return str(output_path)
+            else:
+                self.log(f"   ❌ ffmpeg error: {result.stderr[:300]}")
+                return None
 
-            return str(output_path)
-
+        except subprocess.TimeoutExpired:
+            self.log(f"   ❌ Timeout ffmpeg (120s)")
+            return None
         except Exception as e:
-            self.log(f"   ❌ Errore creazione video storia: {e}")
+            self.log(f"   ❌ Errore generazione video: {e}")
             return None
 
     def setup_schedule(self):
@@ -403,16 +424,13 @@ class ContentScheduler:
         self.log("Generazione report settimanale...")
         video_dir = Path("output/music_videos")
         video_count = len(list(video_dir.glob("*.mp4"))) if video_dir.exists() else 0
-
         story_dir = Path("output/stories")
         story_count = len(list(story_dir.glob("*.json"))) if story_dir.exists() else 0
-
         report = f"""WEEKLY REPORT
 Video musicali generati: {video_count}
 Storie processate: {story_count}
 Periodo: {datetime.now() - timedelta(days=7)} -> {datetime.now()}
 """
-
         report_path = Path("output/weekly_report.txt")
         with open(report_path, "w") as f:
             f.write(report)
@@ -420,7 +438,6 @@ Periodo: {datetime.now() - timedelta(days=7)} -> {datetime.now()}
 
     def run_daemon(self):
         self.log("Content Scheduler Daemon avviato")
-        self.log("   Premi Ctrl+C per terminare")
         self.setup_schedule()
         while True:
             schedule.run_pending()
@@ -428,11 +445,8 @@ Periodo: {datetime.now() - timedelta(days=7)} -> {datetime.now()}
 
     def run_now(self, channel: Optional[str] = None, test_connectivity: bool = False):
         self.log("Esecuzione immediata")
-        
-        # Test connettività se richiesto
         if test_connectivity:
             self.test_connectivity()
-        
         if channel == "music" or channel is None:
             self.job_music_channel()
         if channel == "story" or channel is None:

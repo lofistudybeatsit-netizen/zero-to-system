@@ -2,8 +2,8 @@ name: Content Scheduler
 
 on:
   schedule:
-    - cron: '0 9 * * *'   # 9:00 UTC - Music Channel
-    - cron: '0 15 * * *'  # 15:00 UTC - Story Channel
+    - cron: '0 9 * * *'
+    - cron: '0 15 * * *'
   workflow_dispatch:
     inputs:
       run_now:
@@ -24,6 +24,7 @@ on:
 jobs:
   schedule-content:
     runs-on: ubuntu-latest
+    timeout-minutes: 15  # ← Timeout globale per evitare blocchi infiniti
     
     steps:
       - name: Checkout repository
@@ -56,10 +57,7 @@ jobs:
           sys.path.insert(0, 'src')
           from publishers.instagram_uploader import InstagramUploader
           import os
-          uploader = InstagramUploader(
-              os.environ['INSTAGRAM_ACCESS_TOKEN'],
-              os.environ['INSTAGRAM_USER_ID']
-          )
+          uploader = InstagramUploader(os.environ['INSTAGRAM_ACCESS_TOKEN'], os.environ['INSTAGRAM_USER_ID'])
           uploader.test_connectivity()
           "
 
@@ -86,14 +84,4 @@ jobs:
             output/
             !output/**/*.mp4
             !output/**/*.mp3
-          retention-days: 7
-
-      - name: Upload videos as artifacts (optional)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: generated-videos
-          path: |
-            output/story_videos/
-            output/music_videos/
           retention-days: 3
