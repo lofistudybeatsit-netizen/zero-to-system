@@ -60,7 +60,7 @@ cross_platform:
   instagram:
     enabled: true
     account_type: "business"
-    page_id: "1227338877121646"
+    page_id: "${INSTAGRAM_ID}"
     access_token: "${INSTAGRAM_ACCESS_TOKEN}"
     
   tiktok:
