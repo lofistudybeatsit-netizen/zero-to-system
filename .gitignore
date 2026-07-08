@@ -10,16 +10,19 @@ config/client_secrets.json
 config/youtube_token.pickle
 *.pickle
 
-# Output generati
-output/
+# Audio generati (output) — bloccati
+output/**/*.mp3
+output/**/*.wav
+
+# Audio input (assets) — PERMESSI
+!assets/music_input/*.mp3
+!assets/music_input/*.wav
+!assets/music_input/*.m4a
+!assets/music_input/*.flac
 
 # File segreti
 .env
 
-# File multimediali pesanti
-*.mp4
-*.mp3
-*.wav
 
 # Cache
 .cache/config/channels.yaml 
