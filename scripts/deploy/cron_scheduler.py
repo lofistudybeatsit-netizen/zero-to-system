@@ -87,6 +87,8 @@ class ContentScheduler:
             f.write(log_line + "\n")
 
     def job_music_channel(self):
+        """Job Canale Musica: genera video + upload YouTube + upload Instagram Reels (shorts musicali)"""
+        self.log("=" * 60)
         self.log("JOB: Music Channel - Inizio processing")
         try:
             result = self.music_factory.process_next()
@@ -95,14 +97,20 @@ class ContentScheduler:
                 return
 
             video_data = result["video"]
+            shorts = result.get("shorts", [])
+
             self.log(f"   Video creato: {video_data['title']}")
-            self.log(f"   Shorts generati: {len(result.get('shorts', []))}")
+            self.log(f"   Shorts generati: {len(shorts)}")
             self.log("   Generazione completata, avvio upload...")
 
-            # === UPLOAD YOUTUBE ===
+            # === BLOCCO 1: UPLOAD YOUTUBE (video completo) ===
+            self.log("   --- BLOCCO 1: Upload YouTube ---")
             if self.youtube_uploader:
                 try:
                     video_path = video_data.get("video_path", "")
+                    self.log(f"   DEBUG: video_path = {video_path}")
+                    self.log(f"   DEBUG: exists? {os.path.exists(video_path) if video_path else 'N/A'}")
+
                     if video_path and Path(video_path).exists():
                         self.log(f"   Upload YouTube: {video_path}")
                         yt_result = self.youtube_uploader.upload_video(
@@ -118,28 +126,49 @@ class ContentScheduler:
                         self.log(f"   ⚠️ Video path non valido: {video_path}")
                 except Exception as e:
                     self.log(f"   ❌ ERRORE YouTube upload: {str(e)}")
+                    import traceback
+                    self.log(f"   TRACEBACK: {traceback.format_exc()}")
             else:
                 self.log("   ⏭️ YouTube: uploader non configurato")
 
-            # === UPLOAD INSTAGRAM (Reels dai shorts) ===
+            # === BLOCCO 2: UPLOAD INSTAGRAM REELS (shorts musicali) ===
+            self.log("   --- BLOCCO 2: Upload Instagram Reels (shorts musica) ---")
             if self.instagram_uploader:
                 try:
-                    shorts = result.get("shorts", [])
+                    self.log(f"   DEBUG: shorts trovati = {len(shorts)}")
+
                     for i, short_path in enumerate(shorts[:3]):
-                        if Path(short_path).exists():
+                        self.log(f"   DEBUG: short {i+1} path = {short_path}")
+                        self.log(f"   DEBUG: short {i+1} exists? {os.path.exists(short_path) if short_path else 'N/A'}")
+
+                        if short_path and Path(short_path).exists():
                             self.log(f"   Upload Instagram Reel {i+1}: {short_path}")
+
+                            # DEBUG: verifica dimensione file
+                            file_size = os.path.getsize(short_path)
+                            self.log(f"   DEBUG: file size = {file_size} bytes")
+
                             ig_result = self.instagram_uploader.upload_local_video(
                                 video_path=short_path,
-                                caption=f"{video_data.get('title', 'Lofi')} #lofi #studybeats"
+                                caption=f"{video_data.get('title', 'Lofi')} #lofi #studybeats #shorts"
                             )
+
+                            self.log(f"   DEBUG: ig_result type = {type(ig_result)}")
+                            self.log(f"   DEBUG: ig_result = {json.dumps(ig_result, indent=2)[:500]}")
+
                             if ig_result.get("success"):
-                                self.log(f"   ✅ Instagram Reel {i+1}: pubblicato")
+                                self.log(f"   ✅ Instagram Reel {i+1}: pubblicato - {ig_result.get('url', 'OK')}")
                             else:
-                                self.log(f"   ⚠️ Instagram Reel {i+1}: {ig_result.get('status', 'errore')} - {ig_result.get('error', '')}")
+                                self.log(f"   ⚠️ Instagram Reel {i+1}: FALLITO")
+                                self.log(f"   ⚠️ Status: {ig_result.get('status', 'errore')}")
+                                self.log(f"   ⚠️ Error: {ig_result.get('error', 'nessun dettaglio')}")
                         else:
-                            self.log(f"   ⚠️ Short path non valido: {short_path}")
+                            self.log(f"   ⚠️ Short {i+1} path non valido o file mancante: {short_path}")
+
                 except Exception as e:
                     self.log(f"   ❌ ERRORE Instagram upload: {str(e)}")
+                    import traceback
+                    self.log(f"   TRACEBACK: {traceback.format_exc()}")
             else:
                 self.log("   ⏭️ Instagram: uploader non configurato")
 
@@ -147,10 +176,16 @@ class ContentScheduler:
 
         except Exception as e:
             self.log(f"   ERRORE Music Channel: {str(e)}")
+            import traceback
+            self.log(f"   TRACEBACK: {traceback.format_exc()}")
 
     def job_story_channel(self):
+        """Job Canale Storie: genera storie + upload Instagram Reels (storie)"""
+        self.log("=" * 60)
         self.log("JOB: Story Channel - Inizio processing")
         try:
+            # === FASE 1: Scraping storie ===
+            self.log("   --- FASE 1: Scraping storie ---")
             stories = self.story_scraper.run(
                 sources=["hackernews", "wikipedia", "trivia", "jokes"],
                 limit=20
@@ -162,7 +197,11 @@ class ContentScheduler:
 
             self.log(f"   Trovate {len(stories)} storie")
 
-            for i, story in enumerate(stories):
+            # === FASE 2: Generazione TTS (audio) ===
+            self.log("   --- FASE 2: Generazione audio TTS ---")
+            story_audio_files = []
+
+            for i, story in enumerate(stories[:5]):  # Max 5 storie
                 self.log(f"   Generazione TTS per storia {i+1}...")
 
                 try:
@@ -170,14 +209,137 @@ class ContentScheduler:
                         story["script"],
                         output_path=Path(f"output/tts_audio/story_{i}.mp3")
                     )
-                    self.log(f"   Audio generato: {audio_path}")
+                    self.log(f"   ✅ Audio generato: {audio_path}")
+                    story_audio_files.append({
+                        "audio_path": str(audio_path),
+                        "title": story.get("story", {}).get("title", f"Story {i+1}"),
+                        "script": story.get("script", "")
+                    })
                 except Exception as e:
-                    self.log(f"   Errore TTS: {e}")
+                    self.log(f"   ❌ Errore TTS storia {i+1}: {e}")
+
+            self.log(f"   Audio generati: {len(story_audio_files)}")
+
+            # === FASE 3: Generazione video dalle storie ===
+            self.log("   --- FASE 3: Generazione video storie ---")
+            story_video_files = []
+
+            for i, story_data in enumerate(story_audio_files):
+                try:
+                    # Crea video semplice con audio + immagine statica
+                    video_path = self._create_story_video(
+                        audio_path=story_data["audio_path"],
+                        title=story_data["title"],
+                        output_path=f"output/story_videos/story_{i}.mp4"
+                    )
+                    if video_path:
+                        story_video_files.append({
+                            "video_path": video_path,
+                            "title": story_data["title"]
+                        })
+                        self.log(f"   ✅ Video storia {i+1}: {video_path}")
+                except Exception as e:
+                    self.log(f"   ❌ Errore video storia {i+1}: {e}")
+
+            self.log(f"   Video storie generati: {len(story_video_files)}")
+
+            # === BLOCCO 4: UPLOAD INSTAGRAM REELS (storie) ===
+            self.log("   --- BLOCCO 4: Upload Instagram Reels (storie) ---")
+            if self.instagram_uploader and story_video_files:
+                try:
+                    for i, story_video in enumerate(story_video_files[:3]):  # Max 3 reel
+                        video_path = story_video["video_path"]
+                        title = story_video["title"]
+
+                        self.log(f"   DEBUG: storia video {i+1} path = {video_path}")
+                        self.log(f"   DEBUG: exists? {os.path.exists(video_path)}")
+
+                        if video_path and os.path.exists(video_path):
+                            file_size = os.path.getsize(video_path)
+                            self.log(f"   DEBUG: file size = {file_size} bytes")
+
+                            self.log(f"   Upload Instagram Reel storia {i+1}: {title}")
+
+                            ig_result = self.instagram_uploader.upload_local_video(
+                                video_path=video_path,
+                                caption=f"{title} #story #daily #facts"
+                            )
+
+                            self.log(f"   DEBUG: ig_result = {json.dumps(ig_result, indent=2)[:500]}")
+
+                            if ig_result.get("success"):
+                                self.log(f"   ✅ Instagram Storia Reel {i+1}: pubblicata")
+                            else:
+                                self.log(f"   ⚠️ Instagram Storia Reel {i+1}: FALLITA")
+                                self.log(f"   ⚠️ Status: {ig_result.get('status', 'errore')}")
+                                self.log(f"   ⚠️ Error: {ig_result.get('error', 'nessun dettaglio')}")
+                        else:
+                            self.log(f"   ⚠️ Video storia {i+1} non trovato: {video_path}")
+
+                except Exception as e:
+                    self.log(f"   ❌ ERRORE Instagram upload storie: {str(e)}")
+                    import traceback
+                    self.log(f"   TRACEBACK: {traceback.format_exc()}")
+            else:
+                if not self.instagram_uploader:
+                    self.log("   ⏭️ Instagram: uploader non configurato")
+                if not story_video_files:
+                    self.log("   ⏭️ Nessun video storia da caricare")
 
             self.log("JOB: Story Channel - Completato")
 
         except Exception as e:
             self.log(f"   ERRORE Story Channel: {str(e)}")
+            import traceback
+            self.log(f"   TRACEBACK: {traceback.format_exc()}")
+
+    def _create_story_video(self, audio_path: str, title: str, output_path: str) -> Optional[str]:
+        """
+        Crea un video semplice da un file audio + immagine statica.
+        Usa moviepy per combinare audio e immagine.
+        """
+        try:
+            from moviepy.editor import AudioFileClip, ImageClip, CompositeVideoClip
+
+            output_path = Path(output_path)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # Carica audio
+            audio = AudioFileClip(audio_path)
+            duration = audio.duration
+
+            # Crea clip video con immagine statica
+            # Usa un'immagine di default o genera una semplice
+            img_path = "assets/templates/story_background.jpg"
+            if not os.path.exists(img_path):
+                # Se non c'è immagine, crea una nera
+                from PIL import Image
+                img = Image.new('RGB', (1080, 1920), color='black')
+                img_path = "output/story_videos/temp_bg.jpg"
+                Path(img_path).parent.mkdir(parents=True, exist_ok=True)
+                img.save(img_path)
+
+            video = ImageClip(img_path, duration=duration)
+            video = video.set_audio(audio)
+
+            # Salva video
+            video.write_videofile(
+                str(output_path),
+                fps=24,
+                codec='libx264',
+                audio_codec='aac',
+                temp_audiofile='output/story_videos/temp-audio.m4a',
+                remove_temp=True
+            )
+
+            audio.close()
+            video.close()
+
+            return str(output_path)
+
+        except Exception as e:
+            self.log(f"   ❌ Errore creazione video storia: {e}")
+            return None
 
     def setup_schedule(self):
         music_schedule = self.config.get("channel_a_music", {}).get("publishing", {}).get("schedule", "0 9 * * *")
@@ -199,7 +361,7 @@ class ContentScheduler:
 
     def cleanup_old_files(self):
         self.log("Pulizia file temporanei...")
-        temp_dirs = ["output/tts_audio", "output/tiktok_uploads", "output/instagram_uploads"]
+        temp_dirs = ["output/tts_audio", "output/tiktok_uploads", "output/instagram_uploads", "output/story_videos"]
         for dir_path in temp_dirs:
             path = Path(dir_path)
             if not path.exists():
