@@ -224,7 +224,7 @@ class ContentScheduler:
             self.log("   --- FASE 2: Generazione audio TTS ---")
             story_audio_files = []
 
-            for i, story in enumerate(stories[:5]):  # Max 5 storie
+            for i, story in enumerate(stories[:3]):  # Max 3 storie
                 self.log(f"   Generazione TTS per storia {i+1}...")
 
                 try:
