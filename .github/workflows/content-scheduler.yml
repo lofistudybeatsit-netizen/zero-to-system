@@ -22,7 +22,12 @@ jobs:
           sudo apt-get install -y ffmpeg fonts-dejavu
 
       - name: Install Python dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install --upgrade pip
+          pip install pyyaml moviepy pillow requests python-dotenv schedule
+          pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib
+          pip install praw edge-tts
+          pip install -r requirements.txt
 
       - name: Run Content Scheduler
         env:
