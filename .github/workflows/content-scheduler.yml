@@ -24,9 +24,11 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
-          pip install pyyaml moviepy pillow requests python-dotenv schedule
+          pip uninstall moviepy -y
+          pip install moviepy==1.0.3
+          pip install pyyaml pillow requests python-dotenv schedule
           pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib
-          pip install praw edge-tts
+          pip install edge-tts
           pip install -r requirements.txt
 
       - name: Run Content Scheduler
