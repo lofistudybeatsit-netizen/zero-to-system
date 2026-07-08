@@ -10,7 +10,7 @@ channel_a_music:
     client_id: "${YOUTUBE_CLIENT_ID}"
     client_secret: "${YOUTUBE_CLIENT_SECRET}"
     refresh_token: "${YOUTUBE_REFRESH_TOKEN}"
-    channel_id: "YOUR_CHANNEL_ID_A"
+    channel_id: "YOUR_CHANNEL_ID"
   
   content:
     type: "ambient_music"
@@ -36,7 +36,7 @@ channel_b_faceless:
     client_id: "${YOUTUBE_CLIENT_ID}"
     client_secret: "${YOUTUBE_CLIENT_SECRET}"
     refresh_token: "${YOUTUBE_REFRESH_TOKEN}"
-    channel_id: "YOUR_CHANNEL_ID_B"
+    channel_id: "YOUR_CHANNEL_ID"
   
   story_sources:
     - "hackernews"
