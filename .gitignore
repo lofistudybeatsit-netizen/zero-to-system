@@ -1,0 +1,28 @@
+# Ambiente Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+#
+config/channels.yaml
+config/client_secrets.json
+config/youtube_token.pickle
+*.pickle
+
+# Output generati
+output/
+
+# File segreti
+.env
+
+# File multimediali pesanti
+*.mp4
+*.mp3
+*.wav
+
+# Cache
+.cache/config/channels.yaml 
+config/client_secrets.json 
+config/youtube_token.pickle 
+*.pickle 

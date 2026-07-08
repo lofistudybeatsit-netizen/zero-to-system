@@ -1,0 +1,31 @@
+{
+  "music_genres": [
+    "Lofi", "Ambient", "Dark Academia", "Piano", "Synthwave", 
+    "Chillhop", "Jazz", "Classical", "Cinematic", "Drone"
+  ],
+  "moods": [
+    "Relaxing", "Dark", "Energetic", "Melancholic", "Focus", 
+    "Sleep", "Study", "Work", "Meditation", "Dreamy"
+  ],
+  "activities": [
+    "Studying", "Working", "Sleeping", "Reading", "Coding",
+    "Writing", "Gaming", "Driving", "Meditating", "Focusing"
+  ],
+  "reddit_hooks": [
+    "This Changed Everything", "You Won't Believe This", "The Truth About",
+    "What Nobody Tells You", "The Dark Side of", "I Regret Everything",
+    "The Secret Life of", "What I Wish I Knew", "The Worst Day of My Life"
+  ],
+  "reddit_emotions": [
+    "Heartbreaking", "Hilarious", "Shocking", "Terrifying", "Inspiring",
+    "Infuriating", "Wholesome", "Creepy", "Mind-Blowing", "Sad"
+  ],
+  "hashtags_music": [
+    "#lofi", "#ambient", "#studymusic", "#chillhop", "#piano",
+    "#darkacademia", "#synthwave", "#focusmusic", "#sleepmusic", "#meditation"
+  ],
+  "hashtags_reddit": [
+    "#redditstories", "#storytime", "#reddit", "#fyp", "#viral",
+    "#storytelling", "#narration", "#tts", "#redditreadings", "#trending"
+  ]
+}

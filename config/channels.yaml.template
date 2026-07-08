@@ -1,0 +1,156 @@
+# Configurazione Canali - ZERO TO SYSTEM
+# Compila con i tuoi dati reali
+
+# ============================================
+# CANALE A: YOUTUBE MUSIC (Il tuo esistente)
+# ============================================
+channel_a_music:
+  name: "lofi midnight studying"
+  platform: youtube
+
+  # YouTube API Credentials (da Google Cloud Console)
+  youtube:
+    api_key: ""  # Per lettura dati (opzionale)
+    client_id: "YOUR_CLIENT_ID"
+    client_secret: "YOUR_CLIENT_SECRET"
+    refresh_token: "YOUR_REFRESH_TOKEN"
+    channel_id: "YOUR_CHANNEL_ID"
+
+  # Contenuto
+  content:
+    type: "ambient_music"
+    music_folder: "assets/music_input/"
+    video_duration: 3600
+    static_image: "assets/templates/music_background.jpg"
+
+  # Pubblicazione
+  publishing:
+    schedule: "0 9 * * *"
+    timezone: "Europe/Rome"
+
+  # Cross-posting
+  cross_post:
+    instagram: true
+    tiktok: true
+    shorts: true
+
+# ============================================
+# CANALE B: FACELESS STORIES (NO REDDIT API)
+# ============================================
+channel_b_faceless:
+  name: "Story Time Channel"
+  platform: youtube
+
+  youtube:
+    api_key: ""
+    client_id: "YOUR_CLIENT_ID"
+    client_secret: "YOUR_CLIENT_SECRET"
+    refresh_token: "YOUR_REFRESH_TOKEN"
+    channel_id: "YOUR_CHANNEL_ID_B"  # Se usi lo stesso canale, metti lo stesso ID
+
+  # Fonti storie (NO API necessaria)
+  story_sources:
+    - "hackernews"      # API gratuita, no auth
+    - "wikipedia"       # API gratuita, no auth
+    - "trivia"          # API gratuita, no auth
+    - "jokes"           # API gratuita, no auth
+    - "local"           # File in assets/stories/
+
+  # Contenuto
+  content:
+    type: "story_narration"
+    video_style: "gameplay_background"
+    gameplay_folder: "assets/gameplay/"
+    tts_voice: "en-US-GuyNeural"
+    max_duration: 600
+
+  publishing:
+    schedule: "0 15 * * *"
+    timezone: "Europe/Rome"
+
+# ============================================
+# CROSS-POSTING: INSTAGRAM & TIKTOK
+# ============================================
+cross_platform:
+
+  instagram:
+    enabled: true
+    account_type: "business"
+    page_id: "INSTAGRAM_ID"
+    access_token: "YOUR_ACCESS_TOKEN"
+
+  tiktok:
+    enabled: true
+    client_key: ""
+    client_secret: ""
+    access_token: ""
+
+  content_strategy:
+    shorts_from_music: true
+    shorts_from_stories: true
+    reels_per_day: 3
+    tiktoks_per_day: 3
+
+# ============================================
+# AI & AUTOMATION
+# ============================================
+ai_config:
+  provider: "groq"
+
+  groq:
+    api_key: ""
+    model: "llama-3.1-70b-versatile"
+
+  openrouter:
+    api_key: ""
+    model: "meta-llama/llama-3.1-70b-instruct"
+
+  ollama_local:
+    enabled: false
+    model: "llama3.1:70b"
+    host: "http://localhost:11434"
+
+# ============================================
+# SEO & OPTIMIZATION
+# ============================================
+seo:
+  auto_keywords: true
+  target_keywords_file: "config/seo_keywords.json"
+
+  title_templates:
+    music:
+      - "{mood} {genre} for {activity} | {duration} Hours"
+      - "{genre} Playlist to {activity} | {mood} Vibes"
+      - "{mood} {genre} Mix | Perfect for {activity}"
+    story:
+      - "{hook} | Daily Stories"
+      - "People Share {topic} | r/{source}"
+      - "{emotion} Story from {source}"
+
+  thumbnail:
+    font_path: "assets/fonts/"
+    template: "assets/templates/thumbnail_template.png"
+    colors:
+      primary: "#FF0000"
+      secondary: "#FFFFFF"
+
+# ============================================
+# MONETIZZAZIONE
+# ============================================
+monetization:
+  affiliate_links:
+    - name: "DistroKid"
+      url: "https://distrokid.com/vip/seven/XXXXX"
+      description: "Distribute your music worldwide"
+    - name: "Splice"
+      url: "https://splice.com/affiliate/XXXXX"
+      description: "Royalty-free samples and presets"
+
+  products:
+    enabled: false
+
+  newsletter:
+    enabled: true
+    provider: "beehiiv"
+    api_key: ""
+    publication_id: ""
