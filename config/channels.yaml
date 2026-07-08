@@ -10,7 +10,7 @@ channel_a_music:
     client_id: "${YOUTUBE_CLIENT_ID}"
     client_secret: "${YOUTUBE_CLIENT_SECRET}"
     refresh_token: "${YOUTUBE_REFRESH_TOKEN}"
-    channel_id: "UCHslw1-47qgzXYi7q-EmW7Q"
+    channel_id: "YOUR_CHANNEL_ID_A"
   
   content:
     type: "ambient_music"
