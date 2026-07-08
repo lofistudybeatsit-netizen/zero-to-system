@@ -10,7 +10,7 @@ channel_a_music:
     client_id: "${YOUTUBE_CLIENT_ID}"
     client_secret: "${YOUTUBE_CLIENT_SECRET}"
     refresh_token: "${YOUTUBE_REFRESH_TOKEN}"
-    channel_id: "UCHslw1-47qgzXYi7q-EmW7Q"
+    channel_id: "YOUR_CHANNEL_ID"
   
   content:
     type: "ambient_music"
@@ -60,7 +60,7 @@ cross_platform:
   instagram:
     enabled: true
     account_type: "business"
-    page_id: "1227338877121646"
+    page_id: "${INSTAGRAM_ID}"
     access_token: "${INSTAGRAM_ACCESS_TOKEN}"
     
   tiktok:

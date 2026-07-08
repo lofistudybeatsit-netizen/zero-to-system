@@ -5,8 +5,7 @@ Quota: 1,600 units per upload (max ~6 video/giorno con quota default 10,000)
 Prerequisiti:
 1. Google Cloud Console -> abilita YouTube Data API v3
 2. Crea OAuth 2.0 credentials (Desktop app)
-3. Scarica client_secrets.json
-4. Esegui primo auth per ottenere refresh_token
+3. Ottieni refresh_token (esegui auth locale una volta)
 
 Usage:
     python youtube_uploader.py --video output/video.mp4 --metadata output/metadata.json
@@ -15,14 +14,14 @@ Usage:
 import os
 import sys
 import json
-import pickle
+import time
 import argparse
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
-from google_auth_oauthlib.flow import InstalledAppFlow
+from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 
 # Scopes necessari
@@ -30,47 +29,49 @@ SCOPES = ['https://www.googleapis.com/auth/youtube.upload']
 
 
 class YouTubeUploader:
-    """Uploader YouTube con OAuth 2.0 e resumable upload"""
+    """Uploader YouTube con OAuth 2.0 via env vars (GitHub Actions ready)"""
 
-    def __init__(self, client_secrets_path: str = "config/client_secrets.json",
-                 token_path: str = "config/youtube_token.pickle"):
-        self.client_secrets_path = client_secrets_path
-        self.token_path = token_path
+    def __init__(self, client_id: Optional[str] = None,
+                 client_secret: Optional[str] = None,
+                 refresh_token: Optional[str] = None):
+        """
+        Inizializza uploader.
+        Se non passati, legge da variabili d'ambiente:
+            YOUTUBE_CLIENT_ID
+            YOUTUBE_CLIENT_SECRET
+            YOUTUBE_REFRESH_TOKEN
+        """
+        self.client_id = client_id or os.environ.get('YOUTUBE_CLIENT_ID')
+        self.client_secret = client_secret or os.environ.get('YOUTUBE_CLIENT_SECRET')
+        self.refresh_token = refresh_token or os.environ.get('YOUTUBE_REFRESH_TOKEN')
+
+        if not all([self.client_id, self.client_secret, self.refresh_token]):
+            raise ValueError(
+                "Credenziali YouTube mancanti. "
+                "Imposta YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, YOUTUBE_REFRESH_TOKEN "
+                "come env vars o passali ai parametri."
+            )
+
         self.service = self._authenticate()
 
     def _authenticate(self):
-        """Autenticazione OAuth 2.0 con refresh token"""
-        creds = None
+        """Autenticazione OAuth 2.0 con refresh token da env vars"""
+        creds = Credentials(
+            token=None,  # Verra refreshato automaticamente
+            refresh_token=self.refresh_token,
+            token_uri="https://oauth2.googleapis.com/token",
+            client_id=self.client_id,
+            client_secret=self.client_secret,
+            scopes=SCOPES
+        )
 
-        # Carica token esistente
-        if os.path.exists(self.token_path):
-            with open(self.token_path, 'rb') as token:
-                creds = pickle.load(token)
-
-        # Se non validi, refresh o nuovo auth
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                if not os.path.exists(self.client_secrets_path):
-                    raise FileNotFoundError(
-                        f"client_secrets.json non trovato in {self.client_secrets_path}.\n"
-                        "Crea credentials in Google Cloud Console -> APIs & Services -> Credentials"
-                    )
-
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    self.client_secrets_path, SCOPES)
-                creds = flow.run_local_server(port=0)
-
-            # Salva token per usi futuri
-            os.makedirs(os.path.dirname(self.token_path), exist_ok=True)
-            with open(self.token_path, 'wb') as token:
-                pickle.dump(creds, token)
+        # Refresh il token
+        creds.refresh(Request())
 
         return build('youtube', 'v3', credentials=creds)
 
     def upload_video(self, video_path: str, title: str, description: str,
-                    tags: list = None, category_id: str = "10",
+                    tags: Optional[List[str]] = None, category_id: str = "10",
                     privacy_status: str = "public",
                     publish_at: Optional[str] = None,
                     thumbnail_path: Optional[str] = None) -> Dict:
@@ -136,7 +137,6 @@ class YouTubeUploader:
                 retry += 1
                 if retry > max_retries:
                     raise
-                import time
                 sleep_time = 2 ** retry
                 print(f"Errore, retry {retry}/{max_retries} in {sleep_time}s...")
                 time.sleep(sleep_time)
@@ -164,7 +164,7 @@ class YouTubeUploader:
         }
 
     def upload_short(self, video_path: str, title: str, description: str,
-                    tags: list = None, **kwargs) -> Dict:
+                    tags: Optional[List[str]] = None, **kwargs) -> Dict:
         """Upload YouTube Short (stesso endpoint, video verticale <60s)"""
         # Aggiungi #Shorts al titolo per migliore discovery
         if '#Shorts' not in title:
@@ -181,8 +181,6 @@ class YouTubeUploader:
 
     def check_quota_usage(self) -> Dict:
         """Controlla quota rimanente (approssimativo)"""
-        # La quota esatta richiede monitoring via Cloud Console
-        # Questo è un tracker locale
         quota_file = Path("config/quota_tracker.json")
 
         if quota_file.exists():

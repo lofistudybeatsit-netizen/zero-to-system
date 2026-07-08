@@ -10,6 +10,8 @@ config/client_secrets.json
 config/youtube_token.pickle
 *.pickle
 TOKEN INSTAGRAM.txt
+secrets.txt
+
 
 # Audio generati (output) — bloccati
 output/**/*.mp3
