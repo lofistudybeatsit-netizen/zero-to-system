@@ -36,7 +36,7 @@ class InstagramUploader:
         self.output_dir = Path("output/instagram_uploads")
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-    def _api_call(self, endpoint: str, method: str = "GET", data: dict = None) -> Dict:
+    def _api_call(self, endpoint: str, method: str = "GET", data: Optional[dict] = None) -> Dict:
         """Chiamata API con gestione errori"""
         url = f"{self.API_BASE}/{endpoint}"
 
@@ -62,19 +62,18 @@ class InstagramUploader:
             return {'success': False, 'error': str(e)}
 
     def _upload_to_temp_host(self, video_path: str) -> Optional[str]:
-        """
-        Upload video su file.io (gratuito, 14 giorni) per ottenere URL pubblico.
-        Instagram Graph API richiede che il video sia accessibile pubblicamente.
-        """
         print(f"   📤 Upload temporaneo su file.io: {video_path}")
         try:
             with open(video_path, 'rb') as f:
                 response = requests.post(
-                    'https://file.io',
-                    files={'file': f},
-                    timeout=60
-                )
+                'https://file.io',
+                files={'file': f},
+                timeout=60
+            )
+            print(f"   DEBUG status: {response.status_code}")
+            print(f"   DEBUG body: {response.text[:500]}")
             result = response.json()
+            print(f"   DEBUG json: {result}")
             if 'link' in result:
                 url = result['link']
                 print(f"   ✅ URL temporaneo: {url}")
@@ -84,6 +83,8 @@ class InstagramUploader:
                 return None
         except Exception as e:
             print(f"   ❌ Errore upload temporaneo: {e}")
+            import traceback
+            traceback.print_exc()
             return None
 
     def upload_reel(self, video_url: str, caption: str,
