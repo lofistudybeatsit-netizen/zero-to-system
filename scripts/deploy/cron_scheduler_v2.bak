@@ -17,10 +17,6 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Optional
 
-# === IMPORT MOVIEPY ===
-from moviepy.editor import AudioFileClip, ImageClip
-from PIL import Image
-
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 from content_engine.music_video_factory import MusicVideoFactory
 from content_engine.story_scraper import StoryScraper
