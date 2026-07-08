@@ -1,0 +1,57 @@
+{
+  "video": {
+    "video_path": "output\\music_videos\\Your Ghost - change lyrics.mp4",
+    "thumbnail_path": "output\\music_videos\\thumb_Your Ghost - change lyrics.jpg",
+    "title": "Intense Relaxing Cinematic for Gaming | 1 Hours",
+    "description": "\ud83c\udfb5 Intense Relaxing Cinematic for Gaming | 1 Hours\n\nWelcome to the perfect soundtrack for your session.\nPut on your headphones, relax, and let the music take you away.\n\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n\ud83c\udfa7 Perfect for:\n\u2022 Studying & Focus\n\u2022 Working & Coding\n\u2022 Sleeping & Relaxing\n\u2022 Reading & Writing\n\u2022 Meditation & Mindfulness\n\n\ud83c\udfb9 About the Music:\nAll music is original and produced independently.\nSubscribe for new uploads every day.\n\n#lofi #ambient #studymusic #chillhop #relaxingmusic\n\n\ud83c\udfa7 Tools I Use:\n\u2022 DistroKid: https://distrokid.com/vip/seven/XXXXX\n\u2022 Splice: https://splice.com/affiliate/XXXXX\n\n\n#lofi #ambient #studymusic #chillhop #piano #darkacademia #synthwave #focusmusic #sleepmusic #meditation #foryou #viral",
+    "tags": [
+      "#lofi",
+      "#ambient",
+      "#studymusic",
+      "#chillhop",
+      "#piano",
+      "#darkacademia",
+      "#synthwave",
+      "#focusmusic",
+      "#sleepmusic",
+      "#meditation",
+      "#foryou",
+      "#viral"
+    ],
+    "duration": 237.64,
+    "music_file": "assets\\music_input\\Your Ghost - change lyrics.wav"
+  },
+  "shorts": [
+    {
+      "path": "output\\music_videos\\short_Your Ghost - change lyrics_0.mp4",
+      "title": "Intense Relaxing Cinematic for Gaming | 1 Hours (Clip 1)",
+      "duration": 60,
+      "platforms": [
+        "youtube_shorts",
+        "instagram_reels",
+        "tiktok"
+      ]
+    },
+    {
+      "path": "output\\music_videos\\short_Your Ghost - change lyrics_1.mp4",
+      "title": "Intense Relaxing Cinematic for Gaming | 1 Hours (Clip 2)",
+      "duration": 60.0,
+      "platforms": [
+        "youtube_shorts",
+        "instagram_reels",
+        "tiktok"
+      ]
+    },
+    {
+      "path": "output\\music_videos\\short_Your Ghost - change lyrics_2.mp4",
+      "title": "Intense Relaxing Cinematic for Gaming | 1 Hours (Clip 3)",
+      "duration": 60.0,
+      "platforms": [
+        "youtube_shorts",
+        "instagram_reels",
+        "tiktok"
+      ]
+    }
+  ],
+  "timestamp": "2026-07-08T08:31:17.446496"
+}
