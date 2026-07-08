@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 # Video processing
-from moviepy.editor import AudioFileClip, ImageClip, CompositeVideoClip, TextClip
+from moviepy.editor import AudioFileClip, ImageClip, CompositeVideoClip, TextClip except ImportError:     from moviepy import AudioFileClip, ImageClip, CompositeVideoClip, TextClip
 from moviepy.video.fx.all import fadein, fadeout
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
