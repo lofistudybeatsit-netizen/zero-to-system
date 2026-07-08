@@ -158,7 +158,13 @@ jobs:
             }
           }
           EOF
-
+      - name: DEBUG - Verify files
+        run: |
+          echo "=== INSTAGRAM UPLOADER ==="
+          cat src/publishers/instagram_uploader.py | grep -n "_upload_to_temp_host" || echo "NOT FOUND"
+          echo "=== CRON SCHEDULER ==="
+          cat scripts/deploy/cron_scheduler.py | grep -n "upload_local_video" || echo "NOT FOUND"
+          
       - name: Run Content Scheduler
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
