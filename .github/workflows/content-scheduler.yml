@@ -1,18 +1,35 @@
 name: Content Scheduler
-# Cache invalidate: 2026-07-08-20-20
 
 on:
   schedule:
-    - cron: '0 9,15 * * *'
+    - cron: '0 9 * * *'   # 9:00 UTC - Music Channel
+    - cron: '0 15 * * *'  # 15:00 UTC - Story Channel
   workflow_dispatch:
+    inputs:
+      run_now:
+        description: 'Esegui job specifico'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - music
+          - story
+      test_connectivity:
+        description: 'Testa connettività di rete prima'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
-  publish-content:
+  schedule-content:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -20,163 +37,63 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg fonts-dejavu
+          sudo apt-get install -y ffmpeg imagemagick
 
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
-          pip uninstall moviepy -y
-          pip install moviepy==1.0.3
-          pip install pyyaml pillow requests python-dotenv schedule
-          pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib
-          pip install edge-tts
           pip install -r requirements.txt
-      
-      - name: Create config from secrets
-        run: |
-          mkdir -p config
-          cat > config/channels.yaml << 'EOF'
-          channel_a_music:
-            name: "lofi midnight studying"
-            platform: youtube
-            youtube:
-              api_key: ""
-              client_id: "${{ secrets.YOUTUBE_CLIENT_ID }}"
-              client_secret: "${{ secrets.YOUTUBE_CLIENT_SECRET }}"
-              refresh_token: "${{ secrets.YOUTUBE_REFRESH_TOKEN }}"
-              channel_id: "UCHslw1-47qgzXYi7q-EmW7Q"
-            content:
-              type: "ambient_music"
-              music_folder: "assets/music_input/"
-              video_duration: 3600
-              static_image: "assets/templates/music_background.jpg"
-            publishing:
-              schedule: "0 9 * * *"
-              timezone: "Europe/Rome"
-            cross_post:
-              instagram: true
-              tiktok: true
-              shorts: true
-          channel_b_faceless:
-            name: "Story Time Channel"
-            platform: youtube
-            youtube:
-              api_key: ""
-              client_id: "${{ secrets.YOUTUBE_CLIENT_ID }}"
-              client_secret: "${{ secrets.YOUTUBE_CLIENT_SECRET }}"
-              refresh_token: "${{ secrets.YOUTUBE_REFRESH_TOKEN }}"
-              channel_id: "YOUR_CHANNEL_ID_B"
-            story_sources:
-              - "hackernews"
-              - "wikipedia"
-              - "trivia"
-              - "jokes"
-              - "local"
-            content:
-              type: "story_narration"
-              video_style: "gameplay_background"
-              gameplay_folder: "assets/gameplay/"
-              tts_voice: "en-US-GuyNeural"
-              max_duration: 600
-            publishing:
-              schedule: "0 15 * * *"
-              timezone: "Europe/Rome"
-          cross_platform:
-            instagram:
-              enabled: true
-              account_type: "business"
-              page_id: "1227338877121646"
-              access_token: "${{ secrets.INSTAGRAM_ACCESS_TOKEN }}"
-            tiktok:
-              enabled: true
-              client_key: ""
-              client_secret: ""
-              access_token: ""
-            content_strategy:
-              shorts_from_music: true
-              shorts_from_stories: true
-              reels_per_day: 3
-              tiktoks_per_day: 3
-          ai_config:
-            provider: "groq"
-            groq:
-              api_key: ""
-              model: "llama-3.1-70b-versatile"
-            openrouter:
-              api_key: ""
-              model: "meta-llama/llama-3.1-70b-instruct"
-            ollama_local:
-              enabled: false
-              model: "llama3.1:70b"
-              host: "http://localhost:11434"
-          seo:
-            auto_keywords: true
-            target_keywords_file: "config/seo_keywords.json"
-            title_templates:
-              music:
-                - "{mood} {genre} for {activity} | {duration} Hours"
-                - "{genre} Playlist to {activity} | {mood} Vibes"
-                - "{mood} {genre} Mix | Perfect for {activity}"
-              story:
-                - "{hook} | Daily Stories"
-                - "People Share {topic} | {source}"
-                - "{emotion} Story from {source}"
-            thumbnail:
-              font_path: "assets/fonts/"
-              template: "assets/templates/thumbnail_template.png"
-              colors:
-                primary: "#FF0000"
-                secondary: "#FFFFFF"
-          monetization:
-            affiliate_links:
-              - name: "DistroKid"
-                url: "https://distrokid.com/vip/seven/XXXXX"
-                description: "Distribute your music worldwide"
-              - name: "Splice"
-                url: "https://splice.com/affiliate/XXXXX"
-                description: "Royalty-free samples and presets"
-            products:
-              enabled: false
-            newsletter:
-              enabled: true
-              provider: "beehiiv"
-              api_key: ""
-              publication_id: ""
-          EOF
+          pip install moviepy Pillow requests pyyaml schedule
 
-      - name: Create YouTube client secrets
+      - name: Test connectivity (optional)
+        if: github.event.inputs.test_connectivity == 'true'
+        env:
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
         run: |
-          mkdir -p config
-          cat > config/client_secrets.json << 'EOF'
-          {
-            "installed": {
-              "client_id": "${{ secrets.YOUTUBE_CLIENT_ID }}",
-              "client_secret": "${{ secrets.YOUTUBE_CLIENT_SECRET }}",
-              "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-              "token_uri": "https://oauth2.googleapis.com/token",
-              "redirect_uris": ["http://localhost", "urn:ietf:wg:oauth:2.0:oob"]
-            }
-          }
-          EOF
-      - name: DEBUG - Verify files
-        run: |
-          echo "=== INSTAGRAM UPLOADER ==="
-          cat src/publishers/instagram_uploader.py | grep -n "_upload_to_temp_host" || echo "NOT FOUND"
-          echo "=== CRON SCHEDULER ==="
-          cat scripts/deploy/cron_scheduler.py | grep -n "upload_local_video" || echo "NOT FOUND"
-          
-      - name: Run Content Scheduler
+          python -c "
+          import sys
+          sys.path.insert(0, 'src')
+          from publishers.instagram_uploader import InstagramUploader
+          import os
+          uploader = InstagramUploader(
+              os.environ['INSTAGRAM_ACCESS_TOKEN'],
+              os.environ['INSTAGRAM_USER_ID']
+          )
+          uploader.test_connectivity()
+          "
+
+      - name: Run content scheduler
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
           INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
-        run: python scripts/deploy/cron_scheduler.py --run-now all
+        run: |
+          RUN_NOW="${{ github.event.inputs.run_now }}"
+          if [ -z "$RUN_NOW" ]; then
+            RUN_NOW="all"
+          fi
+          python scripts/deploy/cron_scheduler.py --run-now "$RUN_NOW"
 
       - name: Upload artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: generated-content
-          path: output/
+          name: output-files
+          path: |
+            output/
+            !output/**/*.mp4
+            !output/**/*.mp3
           retention-days: 7
+
+      - name: Upload videos as artifacts (optional)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-videos
+          path: |
+            output/story_videos/
+            output/music_videos/
+          retention-days: 3

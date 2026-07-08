@@ -4,6 +4,7 @@ Cron Scheduler - Gestione scheduling automatico dei contenuti
 Usage:
     python cron_scheduler.py --run-now
     python cron_scheduler.py --daemon
+    python cron_scheduler.py --run-now story --test-connectivity  # Testa rete prima
 """
 
 import os
@@ -89,6 +90,24 @@ class ContentScheduler:
         print(log_line)
         with open(self.log_file, "a") as f:
             f.write(log_line + "\n")
+
+    def test_connectivity(self) -> bool:
+        """Testa connettività di rete prima di iniziare i job"""
+        self.log("🔌 Test connettività di rete...")
+        
+        if not self.instagram_uploader:
+            self.log("   ⚠️ Instagram uploader non disponibile, skip test")
+            return False
+
+        try:
+            results = self.instagram_uploader.test_connectivity()
+            ok_count = sum(1 for v in results.values() if v)
+            total = len(results)
+            self.log(f"   Risultato: {ok_count}/{total} servizi raggiungibili")
+            return ok_count > 0
+        except Exception as e:
+            self.log(f"   ❌ Errore durante test connettività: {e}")
+            return False
 
     def job_music_channel(self):
         """Job Canale Musica: genera video + upload YouTube + upload Instagram Reels (shorts musicali)"""
@@ -407,8 +426,13 @@ Periodo: {datetime.now() - timedelta(days=7)} -> {datetime.now()}
             schedule.run_pending()
             time.sleep(60)
 
-    def run_now(self, channel: Optional[str] = None):
+    def run_now(self, channel: Optional[str] = None, test_connectivity: bool = False):
         self.log("Esecuzione immediata")
+        
+        # Test connettività se richiesto
+        if test_connectivity:
+            self.test_connectivity()
+        
         if channel == "music" or channel is None:
             self.job_music_channel()
         if channel == "story" or channel is None:
@@ -421,6 +445,8 @@ def main():
     parser.add_argument("--run-now", choices=["music", "story", "all"],
                        default="all", help="Esegui job immediatamente")
     parser.add_argument("--config", default="config/channels.yaml", help="Path config")
+    parser.add_argument("--test-connectivity", action="store_true", 
+                       help="Testa connettività di rete prima di eseguire")
     args = parser.parse_args()
 
     scheduler = ContentScheduler(args.config)
@@ -429,7 +455,7 @@ def main():
         scheduler.run_daemon()
     else:
         channel: Optional[str] = None if args.run_now == "all" else args.run_now
-        scheduler.run_now(channel)
+        scheduler.run_now(channel, test_connectivity=args.test_connectivity)
 
 
 if __name__ == "__main__":
