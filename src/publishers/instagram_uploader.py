@@ -61,6 +61,31 @@ class InstagramUploader:
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
+    def _upload_to_temp_host(self, video_path: str) -> Optional[str]:
+        """
+        Upload video su file.io (gratuito, 14 giorni) per ottenere URL pubblico.
+        Instagram Graph API richiede che il video sia accessibile pubblicamente.
+        """
+        print(f"   📤 Upload temporaneo su file.io: {video_path}")
+        try:
+            with open(video_path, 'rb') as f:
+                response = requests.post(
+                    'https://file.io',
+                    files={'file': f},
+                    timeout=60
+                )
+            result = response.json()
+            if 'link' in result:
+                url = result['link']
+                print(f"   ✅ URL temporaneo: {url}")
+                return url
+            else:
+                print(f"   ❌ file.io error: {result}")
+                return None
+        except Exception as e:
+            print(f"   ❌ Errore upload temporaneo: {e}")
+            return None
+
     def upload_reel(self, video_url: str, caption: str,
                     cover_url: Optional[str] = None,
                     share_to_feed: bool = True) -> Dict:
@@ -200,39 +225,28 @@ class InstagramUploader:
 
     def upload_local_video(self, video_path: str, caption: str) -> Dict:
         """
-        Upload video locale usando resumable upload
-        Richiede upload del video su un server pubblico prima (CDN, S3, etc.)
-        Per uso gratuito: usa ngrok, GitHub Pages, o servizi come file.io
+        Upload video locale su Instagram.
+        1. Upload su file.io per ottenere URL pubblico
+        2. Usa upload_reel con l'URL
         """
-        print("⚠️ Per upload locale, il video deve essere accessibile pubblicamente")
-        print("   Opzioni gratuite:")
-        print("   1. Upload su file.io (temporaneo, 14 giorni)")
-        print("   2. Usa ngrok per esporre server locale")
-        print("   3. Upload su GitHub Pages / Cloudflare Pages")
+        print(f"📤 Upload locale Instagram: {video_path}")
 
-        # Per ora, salva metadata per upload manuale
-        metadata = {
-            'video_path': video_path,
-            'caption': caption,
-            'status': 'needs_public_url',
-            'instructions': 'Upload video to public URL, then call upload_reel()'
-        }
+        # Step 1: Ottieni URL pubblico
+        video_url = self._upload_to_temp_host(video_path)
+        if not video_url:
+            return {
+                'success': False,
+                'error': 'Impossibile ottenere URL pubblico per il video'
+            }
 
-        meta_path = self.output_dir / f"{Path(video_path).stem}_ig_meta.json"
-        with open(meta_path, 'w') as f:
-            json.dump(metadata, f, indent=2)
-
-        return {
-            'success': False,
-            'status': 'needs_public_url',
-            'metadata_path': str(meta_path)
-        }
+        # Step 2: Upload su Instagram
+        return self.upload_reel(video_url, caption)
 
 
 def main():
     parser = argparse.ArgumentParser(description="Instagram Reel Uploader")
     parser.add_argument("--video-url", help="URL pubblico del video")
-    parser.add_argument("--video-path", help="Path locale (richiede upload manuale a URL)")
+    parser.add_argument("--video-path", help="Path locale (upload automatico a URL temporaneo)")
     parser.add_argument("--caption", required=True, help="Didascalia")
     parser.add_argument("--access-token", help="Instagram Access Token")
     parser.add_argument("--ig-user-id", help="Instagram User ID")
