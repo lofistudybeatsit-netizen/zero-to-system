@@ -24,8 +24,8 @@ on:
 jobs:
   schedule-content:
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # ← Timeout globale per evitare blocchi infiniti
-    
+    timeout-minutes: 15
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -44,13 +44,36 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
-          pip install moviepy Pillow requests pyyaml schedule
+          pip install boto3 Pillow requests pyyaml schedule
+
+      - name: Safety net - Cleanup R2 residuals
+        env:
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+        run: |
+          python -c "
+          import sys
+          sys.path.insert(0, 'src')
+          from publishers.instagram_uploader import InstagramUploader
+          import os
+          uploader = InstagramUploader(os.environ['INSTAGRAM_ACCESS_TOKEN'], os.environ['INSTAGRAM_USER_ID'])
+          result = uploader.cleanup_r2_all()
+          print(f'Cleanup R2: {result}')
+          "
 
       - name: Test connectivity (optional)
         if: github.event.inputs.test_connectivity == 'true'
         env:
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
           INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
         run: |
           python -c "
           import sys
@@ -63,18 +86,25 @@ jobs:
 
       - name: Run content scheduler
         env:
+          # YouTube
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          # Instagram
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
           INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          # R2 (Cloudflare)
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          R2_PUBLIC_DOMAIN: ${{ secrets.R2_PUBLIC_DOMAIN }}
         run: |
           RUN_NOW="${{ github.event.inputs.run_now }}"
           if [ -z "$RUN_NOW" ]; then
             RUN_NOW="all"
           fi
           echo "Running: $RUN_NOW"
-          # Forza flush output
           export PYTHONUNBUFFERED=1
           python scripts/deploy/cron_scheduler.py --run-now "$RUN_NOW"
 

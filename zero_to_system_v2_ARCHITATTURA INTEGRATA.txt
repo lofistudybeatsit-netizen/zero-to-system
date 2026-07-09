@@ -1,0 +1,94 @@
+zero_to_system_v2/                          ← TUA DIRECTORY ESISTENTE
+│
+├── 📁 .github/workflows/
+│   └── content-scheduler.yml              ← (invariato)
+│
+├── 📁 assets/                              ← ESISTENTE
+│   ├── 📁 music_input/                    ← ESISTENTE — ora riceve output video
+│   ├── 📁 stories/                        ← ESISTENTE — ora riceve output video
+│   ├── 📁 templates/
+│   │   └── story_background.jpg           ← ESISTENTE
+│   ├── 📁 gameplay/           ★ NUOVO — video gameplay scaricati manualmente
+│   ├── 📁 backgrounds/        ★ NUOVO
+│   │   ├── 📁 images/         ★ cache immagini scaricate
+│   │   ├── 📁 videos/         ★ cache video scaricati
+│   │   └── 📁 cache/          ★ cache generale
+│   ├── 📁 music/              ★ NUOVO — musica sottofondo per storie
+│   │   └── 📁 horror_ambient/
+│   ├── 📁 sfx/                ★ NUOVO — sound effects
+│   │   └── 📁 horror/
+│   └── 📁 templates/fonts/    ★ NUOVO — font personalizzati
+│
+├── 📁 config/                              ← ESISTENTE
+│   ├── channels.yaml                      ← ESISTENTE
+│   └── 📁 concepts/           ★ NUOVO — configurazioni concept-driven
+│       ├── concept_registry.yaml          ★ mappa concept → canali
+│       ├── lofi_midnight_studying.yaml    ★ identità LoFi
+│       └── reddit_horror_stories.yaml     ★ identità Horror
+│
+├── 📁 output/                              ← ESISTENTE
+│   ├── 📁 instagram_uploads/              ← ESISTENTE
+│   ├── 📁 music_videos/                   ← ESISTENTE
+│   ├── 📁 story_videos/                   ← ESISTENTE
+│   ├── 📁 tts_audio/                      ← ESISTENTE
+│   ├── 📁 tiktok_uploads/                 ← ESISTENTE
+│   ├── 📁 thumbnails/         ★ NUOVO — thumbnail generate
+│   ├── 📁 subtitles/          ★ NUOVO — file SRT generati
+│   └── scheduler.log                      ← ESISTENTE
+│
+├── 📁 scripts/deploy/
+│   └── cron_scheduler.py                  ← MODIFICA — aggiungi Blocco 0
+│
+├── 📁 src/                                 ← ESISTENTE
+│   ├── __init__.py
+│   │
+│   ├── 📁 content_engine/                 ← ESISTENTE (invariato)
+│   │   ├── music_video_factory.py
+│   │   └── story_scraper.py
+│   │
+│   ├── 📁 publishers/                     ← ESISTENTE (invariato)
+│   │   ├── youtube_uploader.py
+│   │   ├── instagram_uploader.py
+│   │   └── tiktok_uploader.py
+│   │
+│   ├── 📁 voice_synthesis/                ← ESISTENTE (invariato)
+│   │   └── tts_engine.py
+│   │
+│   └── 📁 content_pipeline/   ★ NUOVO — tutto il sistema Content Factory
+│       ├── __init__.py
+│       │
+│       ├── 📁 core/                       ★ orchestrazione
+│       │   ├── config_manager.py          ★ carica YAML concept
+│       │   ├── pipeline.py                ★ orchestratore principale
+│       │   └── quality_checker.py         ★ validazione pre-pubblicazione
+│       │
+│       ├── 📁 research/                   ★ ricerca contenuto
+│       │   ├── trend_research.py          ★ Reddit, HN, NewsAPI
+│       │   └── inspiration_engine.py      ★ database hook CTR
+│       │
+│       ├── 📁 generation/                 ★ generazione testo
+│       │   ├── script_writer.py           ★ riscrittura scene
+│       │   ├── hook_generator.py          ★ hook ottimizzati
+│       │   └── metadata_generator.py      ★ titoli, SEO, hashtag
+│       │
+│       ├── 📁 assets/                     ★ selezione asset
+│       │   ├── asset_selector.py          ★ Pexels, Pixabay, Unsplash, gameplay
+│       │   └── music_selector.py          ★ colonne sonore
+│       │
+│       ├── 📁 media/                      ★ produzione media
+│       │   ├── video_assembler.py         ★ montaggio FFmpeg
+│       │   ├── subtitle_engine.py         ★ Whisper → SRT
+│       │   ├── thumbnail_engine.py        ★ PIL thumbnail CTR
+│       │   └── audio_processor.py         ★ loudnorm, EQ, mix
+│       │
+│       └── 📁 utils/                      ★ utility
+│           ├── api_client.py              ★ HTTP con retry
+│           ├── cache_manager.py           ★ cache locale TTL
+│           └── logger.py                  ★ logging JSON
+│
+├── .env                                   ← ESISTENTE — aggiungi API keys
+├── requirements.txt                       ← ESISTENTE — aggiungi dipendenze
+├── sync_asset.bat                         ← ESISTENTE
+├── test_ig.py                             ← ESISTENTE
+├── INTEGRATION_GUIDE.md     ★ NUOVO — guida passo-passo
+└── requirements_additions.txt ★ NUOVO — dipendenze da aggiungere

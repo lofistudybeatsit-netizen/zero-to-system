@@ -26,3 +26,7 @@ openpyxl>=3.1.0
 # Optional (AI Local)
 # ollama>=0.1.0
 # transformers>=4.35.0
+
+# R2 / S3 (Cloudflare R2 usa API S3-compatible)
+boto3>=1.28.0
+botocore>=1.31.0

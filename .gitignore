@@ -12,7 +12,6 @@ config/youtube_token.pickle
 TOKEN INSTAGRAM.txt
 secrets.txt
 
-
 # Audio generati (output) — bloccati
 output/**/*.mp3
 output/**/*.wav
@@ -32,3 +31,9 @@ output/**/*.wav
 config/client_secrets.json 
 config/youtube_token.pickle 
 *.pickle 
+
+#NEW CONTENT GENERATION SYSTEM
+/src/content_pipeline/*
+/config/concepts/*
+requirements_additions.txt
+INTEGRATION_GUIDE.md
