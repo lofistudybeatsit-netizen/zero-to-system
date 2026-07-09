@@ -403,6 +403,7 @@ class ContentScheduler:
                 '-c:a', 'aac',
                 '-b:a', '96k',
                 '-pix_fmt', 'yuv420p',
+                '-movflags', '+faststart',
                 '-shortest',
                 '-t', str(min(duration, 60)),
                 str(output_path)

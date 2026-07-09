@@ -215,7 +215,12 @@ class InstagramUploader:
             )
 
             # URL pubblico
-            custom_domain = os.environ.get('R2_PUBLIC_DOMAIN')
+            custom_domain = os.environ.get('R2_PUBLIC_DOMAIN', '').strip()
+            # Sanifica: rimuove eventuale schema/slash finale incollato per errore
+            # nel secret (es. "https://pub-xxx.r2.dev" invece di "pub-xxx.r2.dev"),
+            # che altrimenti genera un URL doppio "https://https://..." non
+            # raggiungibile da Meta e causa "Container processing failed".
+            custom_domain = custom_domain.replace('https://', '').replace('http://', '').rstrip('/')
             endpoint = os.environ.get('R2_ENDPOINT', '')
 
             if custom_domain:

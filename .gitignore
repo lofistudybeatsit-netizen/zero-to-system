@@ -37,3 +37,4 @@ config/youtube_token.pickle
 /config/concepts/*
 requirements_additions.txt
 INTEGRATION_GUIDE.md
+zero_to_system_v2_ARCHITATTURA INTEGRATA.txt
