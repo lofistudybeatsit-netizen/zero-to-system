@@ -73,6 +73,9 @@ jobs:
           if [ -z "$RUN_NOW" ]; then
             RUN_NOW="all"
           fi
+          echo "Running: $RUN_NOW"
+          # Forza flush output
+          export PYTHONUNBUFFERED=1
           python scripts/deploy/cron_scheduler.py --run-now "$RUN_NOW"
 
       - name: Upload artifacts
