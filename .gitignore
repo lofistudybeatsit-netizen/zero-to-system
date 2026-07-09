@@ -33,8 +33,59 @@ config/youtube_token.pickle
 *.pickle 
 
 #NEW CONTENT GENERATION SYSTEM
-/src/content_pipeline/*
-/config/concepts/*
-requirements_additions.txt
 INTEGRATION_GUIDE.md
+zero_to_system_flowchart.png
 zero_to_system_v2_ARCHITATTURA INTEGRATA.txt
+zero_to_system_v2_ARCHITATTURA INTEGRATAv2.txt
+# ============================================================
+# CONTENT FACTORY v2 — File da escludere
+# ============================================================
+
+# Cache asset scaricati (si rigenera)
+assets/backgrounds/cache/
+
+# Output temporanei (varianti non selezionate)
+output/*/variant_*/
+output/*/v*/
+output/*/c*/
+
+# File media pesanti (solo cartelle vuote su Git)
+*.mp4
+*.mp3
+*.mov
+*.wav
+*.avi
+*.mkv
+
+# Thumbnail temporanee
+output/thumbnails/
+output/subtitles/
+
+# Stato Telegram polls
+output/telegram_polls/
+
+# Font (opzionale, se grandi)
+# assets/templates/fonts/*.ttf
+# assets/templates/fonts/*.otf
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Virtual env
+venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

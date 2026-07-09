@@ -1,0 +1,76 @@
+# CONCEPT REGISTRY
+concepts:
+  lost_love_promo:
+    active: true
+    description: "Promo canzoni originali — lost love story music"
+    platforms:
+      youtube: {channel_id: "YOUR_YT", upload_type: "both", category_id: "10"}
+      instagram: {page_id: "YOUR_IG", upload_type: "reel", reel_max_duration: 60}
+      tiktok: {account: "@yourmusic", upload_type: "video", max_duration: 60}
+    output_dir: "output/promo_videos/"
+    schedule: ["12:00", "18:00"]
+    content_rules:
+      min_duration_sec: 15
+      max_duration_sec: 300
+      target_lufs: -14
+      aspect_ratio_long: "16:9"
+      aspect_ratio_short: "9:16"
+
+  lofi_study_beats:
+    active: true
+    description: "LoFi study beats 1-2h"
+    platforms:
+      youtube: {channel_id: "UCHslw1-47qgzXYi7q-EmW7Q", upload_type: "long_form", category_id: "10"}
+      instagram: {page_id: "1227338877121646", upload_type: "reel", reel_max_duration: 90}
+      tiktok: {account: "@lofimidnight", upload_type: "video"}
+    output_dir: "output/lofi_videos/"
+    schedule: ["09:00", "15:00", "21:00"]
+    content_rules:
+      min_duration_sec: 1800
+      max_duration_sec: 7200
+      target_lufs: -14
+      aspect_ratio: "16:9"
+
+  text_confessions:
+    active: true
+    description: "Frasi emotive su video/immagine"
+    platforms:
+      instagram: {page_id: "NEW_CONF", upload_type: "reel", reel_max_duration: 30}
+      tiktok: {account: "@textconfessions", upload_type: "video", max_duration: 30}
+      facebook: {page_id: "NEW_FB", upload_type: "video"}
+    output_dir: "output/confession_videos/"
+    schedule: ["10:00", "14:00", "19:00", "22:00"]
+    content_rules:
+      min_duration_sec: 5
+      max_duration_sec: 30
+      target_lufs: -16
+      aspect_ratio: "9:16"
+
+  dark_confessions:
+    active: false
+    description: "Storie dark narrate — FUTURO"
+    platforms:
+      youtube: {channel_id: "NEW", upload_type: "shorts"}
+      instagram: {page_id: "NEW", upload_type: "reel"}
+      tiktok: {account: "@darkconf", upload_type: "video"}
+      facebook: {page_id: "NEW", upload_type: "video"}
+    output_dir: "output/story_videos/"
+    schedule: ["20:00", "22:00"]
+    content_rules:
+      min_duration_sec: 30
+      max_duration_sec: 180
+      target_lufs: -16
+      aspect_ratio: "9:16"
+
+settings:
+  telegram:
+    enabled: true
+    bot_token: "${TELEGRAM_BOT_TOKEN}"
+    chat_id: "${TELEGRAM_CHAT_ID}"
+    poll_timeout_hours: 24
+    fallback_auto_select: true
+    max_options: 3
+  cache_enabled: true
+  cache_ttl_hours: 168
+  cache_dir: "assets/backgrounds/cache/"
+  max_retries: 3

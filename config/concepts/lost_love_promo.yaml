@@ -1,0 +1,107 @@
+name: "Lost Love Promo"
+tagline: "Original music that hits different"
+brand_voice: "emotional, nostalgic, raw, intimate"
+
+visual_identity:
+  color_palette:
+    primary: "#1a1a2e"
+    secondary: "#2d1b4e"
+    accent: "#ff6b9d"
+    accent_secondary: "#c44569"
+    text_primary: "#f8f9fa"
+    text_secondary: "#dee2e6"
+    glow: "#ff6b9d"
+  fonts:
+    title: "Montserrat-Black.ttf"
+    hook: "BebasNeue-Regular.ttf"
+    lyrics: "Inter-Light.ttf"
+  overlay_style: "neon_glow"
+  effects:
+    film_grain: 0.1
+    vignette: 0.25
+    slow_zoom: true
+    zoom_speed: 0.0002
+    glow_intensity: 0.6
+
+video_style:
+  background_type: "mixed_local_stock"
+  asset_sources:
+    local_catalog:
+      pool_dir: "assets/photos/promo_catalog/"
+      selection_mode: "song_matched"
+      file_types: [".jpg", ".jpeg", ".png"]
+    image:
+      - provider: pexels
+        query_templates:
+          - "couple silhouette sunset emotional"
+          - "rain window city night moody"
+          - "lonely person street night aesthetic"
+          - "nostalgic memories vintage aesthetic"
+        orientation: "portrait"
+      - provider: pollinations_ai
+        query_templates:
+          - "emotional scene, lost love, cinematic lighting, moody atmosphere, dark aesthetic, 4k portrait"
+        width: 1080
+        height: 1920
+  overlays:
+    hook_text:
+      enabled: true
+      position: "center"
+      font_size: 72
+      font_family: "hook"
+      color: "#ff6b9d"
+      stroke_color: "#1a1a2e"
+      stroke_width: 4
+      glow: true
+      glow_color: "#ff6b9d"
+      animation: "fade_scale_in"
+      duration: 3
+    lyrics:
+      enabled: true
+      position: "bottom_center"
+      font_size: 32
+      font_family: "lyrics"
+      color: "#f8f9fa"
+      max_lines: 2
+    waveform:
+      enabled: true
+      position: "bottom"
+      height: 80
+      color: "#ff6b9d"
+      opacity: 0.3
+      style: "cline"
+    progress_bar:
+      enabled: true
+      position: "bottom"
+      height: 3
+      color: "#ff6b9d"
+      bg_color: "#2d1b4e"
+
+audio_identity:
+  source: "local_mp3"
+  input_dir: "assets/music/promo/"
+  mastering:
+    target_lufs: -14
+    true_peak_db: -1.0
+
+content_rules:
+  reel_duration_sec: 30
+  short_duration_sec: 60
+  hook_templates:
+    - "she got me thinking like..."
+    - "she got him on her mind"
+    - "the kind of love that ruins you"
+    - "you never forget your first"
+    - "some scars don't fade"
+    - "the text she never sent"
+    - "3am thoughts about her"
+    - "what if i never let go?"
+    - "love that felt like home"
+    - "the last time i saw her"
+  title_templates:
+    - "{hook} | {song_title}"
+    - "{song_title} — {hook}"
+  tags:
+    youtube: ["original music", "indie", "lost love", "emotional", "sad songs", "breakup", "nostalgic", "night drive", "vibes", "new music"]
+    instagram: ["#originalmusic", "#indie", "#lostlove", "#sadsongs", "#breakup", "#nostalgia", "#nightdrive", "#vibes", "#newmusic", "#songwriter"]
+    tiktok: ["#originalmusic", "#sadsong", "#breakup", "#nostalgia", "#indie", "#fyp", "#foryou", "#viral", "#music", "#song"]

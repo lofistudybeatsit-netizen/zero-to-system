@@ -1,0 +1,106 @@
+name: "Text Confessions"
+tagline: "Things we never said out loud"
+brand_voice: "raw, vulnerable, relatable, bittersweet"
+
+visual_identity:
+  color_palette:
+    primary: "#0f0f0f"
+    secondary: "#1a1a1a"
+    accent: "#ff4757"
+    text_primary: "#ffffff"
+    text_secondary: "#dfe4ea"
+  fonts:
+    main_text: "BebasNeue-Regular.ttf"
+    subtitle: "Montserrat-Light.ttf"
+  overlay_style: "bold_centered"
+  effects:
+    film_grain: 0.2
+    vignette: 0.4
+    slow_zoom: true
+    zoom_speed: 0.0005
+    blur_background: 2.0
+
+video_style:
+  background_type: "video_stock_or_gameplay"
+  asset_sources:
+    video:
+      - provider: pexels
+        query_templates:
+          - "young couple walking city night"
+          - "person looking out window rain"
+          - "driving car night city lights"
+          - "girl reading book cozy aesthetic"
+          - "boy sitting alone park bench"
+          - "rain street night romantic"
+          - "coffee shop window rainy day"
+          - "train window passing landscape"
+          - "bedroom morning light aesthetic"
+          - "beach sunset silhouette couple"
+        min_duration: 5
+        preferred_orientation: "portrait"
+    local_gameplay:
+      pool_dir: "assets/videos/confessions/"
+      selection_mode: "random"
+  overlays:
+    main_text:
+      enabled: true
+      position: "center"
+      font_size: 56
+      font_family: "main_text"
+      color: "#ffffff"
+      stroke_color: "#0f0f0f"
+      stroke_width: 3
+      max_lines: 3
+      max_chars_per_line: 20
+      animation: "fade_scale_in"
+      glow: true
+      glow_color: "#ff4757"
+    watermark:
+      enabled: true
+      position: "bottom_center"
+      font_size: 16
+      color: "#dfe4ea"
+      opacity: 0.5
+      text: "@textconfessions"
+
+audio_identity:
+  source: "local_library"
+  library_dir: "assets/music/confessions/"
+  track_selection:
+    mood_match: true
+    fade_in: 1.0
+    fade_out: 2.0
+  mastering:
+    target_lufs: -16
+    background_volume: 0.25
+
+content_rules:
+  min_duration_sec: 5
+  max_duration_sec: 30
+  target_duration_sec: 15
+  frases_source: "config/frases/confessions_100.json"
+  frase_selection:
+    mode: "sequential"
+    avoid_recent: 20
+  frase_categories:
+    - "miss_you"
+    - "never_said"
+    - "what_if"
+    - "regret"
+    - "hope"
+    - "pain"
+    - "love"
+    - "goodbye"
+  upload_schedule:
+    - time: "10:00"
+      label: "morning_feels"
+    - time: "14:00"
+      label: "afternoon_vibes"
+    - time: "19:00"
+      label: "evening_mood"
+    - time: "22:00"
+      label: "night_thoughts"
+  tags:
+    instagram: ["#confessions", "#textconfessions", "#relatable", "#feelings", "#quotes", "#sad", "#love", "#heartbreak", "#vibes", "#fyp"]
+    tiktok: ["#confessions", "#relatable", "#feelings", "#quotes", "#sad", "#love", "#fyp", "#foryou", "#viral", "#trending"]
+    facebook: ["#confessions", "#relatable", "#feelings", "#quotes", "#love", "#heartbreak"]

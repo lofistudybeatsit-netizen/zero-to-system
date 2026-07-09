@@ -1,0 +1,102 @@
+name: "LoFi Study Beats"
+tagline: "Music for deep focus and late night study sessions"
+brand_voice: "calm, cozy, nostalgic, welcoming"
+
+visual_identity:
+  color_palette:
+    primary: "#1a1a2e"
+    secondary: "#16213e"
+    accent: "#e94560"
+    text_primary: "#eaeaea"
+    text_secondary: "#a0a0a0"
+  fonts:
+    primary: "Montserrat-Light.ttf"
+    title: "Montserrat-Bold.ttf"
+  overlay_style: "minimal_glow"
+  effects:
+    film_grain: 0.15
+    vignette: 0.3
+    slow_zoom: true
+    zoom_speed: 0.0003
+
+video_style:
+  background_type: "stock_video_loop"
+  asset_sources:
+    video:
+      - provider: pexels
+        query_templates:
+          - "cozy room rain window lofi study night aesthetic"
+          - "train journey rain window city lights night"
+          - "coffee shop ambient rain outside cozy"
+          - "library books warm light night study"
+        min_duration: 10
+        preferred_orientation: "landscape"
+      - provider: coverr
+        query_templates:
+          - "rain window night"
+          - "city night lights"
+        min_duration: 10
+    image:
+      - provider: unsplash
+        query_templates:
+          - "cozy room rain window night"
+          - "lofi aesthetic study desk"
+        orientation: "landscape"
+  overlays:
+    waveform:
+      enabled: true
+      position: "bottom"
+      height: 150
+      color: "#e94560"
+      opacity: 0.4
+      style: "cline"
+    progress_bar:
+      enabled: true
+      position: "bottom"
+      height: 4
+      color: "#e94560"
+      bg_color: "#16213e"
+    title:
+      enabled: true
+      position: "top_center"
+      font_size: 36
+      color: "#eaeaea"
+    timer:
+      enabled: true
+      type: "pomodoro"
+      pomodoro_minutes: 25
+      position: "top_right"
+      font_size: 24
+      color: "#a0a0a0"
+
+audio_identity:
+  sources:
+    - type: "local"
+      dir: "assets/music/lofi/"
+      priority: 1
+    - type: "api"
+      provider: "uppbeat"
+      genre_filter: ["lofi", "chillhop"]
+      priority: 2
+  genre: "lofi_hiphop"
+  bpm_range: [70, 95]
+  mastering:
+    target_lufs: -14
+    true_peak_db: -1.0
+
+content_rules:
+  min_duration_sec: 1800
+  max_duration_sec: 7200
+  target_duration_sec: 3600
+  title_templates:
+    - "{mood} LoFi Beats for {activity} | {time_of_day} Vibes 🌙"
+    - "{time_of_day} Study Session 🎧 {mood} LoFi Mix"
+  title_variables:
+    mood: ["Chill", "Cozy", "Dreamy", "Soft", "Gentle", "Warm"]
+    activity: ["Studying", "Focusing", "Relaxing", "Reading", "Working"]
+    time_of_day: ["Late Night", "Midnight", "3 AM", "Evening"]
+    duration: ["30", "60", "90", "120"]
+  tags:
+    youtube: ["lofi", "study music", "chill beats", "focus music", "lofi hip hop", "relaxing music", "study beats", "background music", "ambient", "night study"]
+    instagram: ["#lofi", "#studymusic", "#chillbeats", "#focus", "#studysession", "#nightstudy", "#cozyvibes", "#rainyday", "#lofihiphop", "#ambientmusic"]
+    tiktok: ["#lofi", "#studymusic", "#chill", "#focus", "#studywithme", "#nightowl", "#cozy", "#aesthetic"]

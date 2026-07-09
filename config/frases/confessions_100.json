@@ -1,0 +1,139 @@
+{
+  "version": "1.0",
+  "total_frases": 100,
+  "categories": {
+    "miss_you": {
+      "color": "#ff4757",
+      "frases": [
+        "write something you never told her",
+        "write you miss him without saying you miss him",
+        "the text she never sent",
+        "3am thoughts about someone you lost",
+        "i still check my phone hoping it's you",
+        "some songs hit different after they're gone",
+        "the worst part is dreaming about them",
+        "i memorized your number but never call",
+        "your side of the bed is still warm in my head",
+        "i kept the playlist we made together",
+        "sometimes i type your name then delete it",
+        "the cafe we used to go to still has our table"
+      ]
+    },
+    "never_said": {
+      "color": "#ffa502",
+      "frases": [
+        "things i wish i said before you left",
+        "the conversation we never had",
+        "i was scared to say i needed you",
+        "sorry doesn't fix what i broke",
+        "i should have held on tighter",
+        "you deserved the truth not my silence",
+        "i practiced what to say for weeks",
+        "the letter i never sent is still in my drawer",
+        "i wanted to say stay but pride spoke first",
+        "my heart knew before my mouth could speak"
+      ]
+    },
+    "what_if": {
+      "color": "#2ed573",
+      "frases": [
+        "what if i never let go",
+        "the version of us that could have been",
+        "what if i chose differently that night",
+        "parallel universe us is probably happy",
+        "what if i was enough",
+        "the road not taken still haunts me",
+        "what if i said yes instead of maybe",
+        "one decision changed everything",
+        "what if fear didn't win that day",
+        "the life we planned vs the life we got"
+      ]
+    },
+    "regret": {
+      "color": "#747d8c",
+      "frases": [
+        "when you realize it was the last time",
+        "i didn't know that goodbye was forever",
+        "the moment you know you messed up",
+        "i took your presence for granted",
+        "the things i did while hurting",
+        "regret tastes like cold coffee at 3am",
+        "i pushed away the only one who cared",
+        "some bridges burn slower than others",
+        "the apology that came too late",
+        "i finally understand what i lost"
+      ]
+    },
+    "hope": {
+      "color": "#1e90ff",
+      "frases": [
+        "the kind of love that doesn't need words",
+        "some people are meant to stay in your memories",
+        "healing doesn't mean forgetting",
+        "the sun still rises even after the darkest night",
+        "maybe someday we'll laugh about this",
+        "love doesn't end it just changes form",
+        "the best is yet to come i promise",
+        "broken crayons still color",
+        "your heart is stronger than your scars",
+        "sometimes goodbye is a second hello"
+      ]
+    },
+    "pain": {
+      "color": "#57606f",
+      "frases": [
+        "the silence between us said everything",
+        "when love feels like a battlefield",
+        "the worst pain is pretending you're fine",
+        "some wounds don't bleed but never heal",
+        "loving you was my favorite mistake",
+        "the emptiness after they leave",
+        "when your heart breaks in slow motion",
+        "the kind of hurt that doesn't show",
+        "i'm tired of being strong",
+        "sometimes the villain is just someone who got hurt"
+      ]
+    },
+    "love": {
+      "color": "#ff6b81",
+      "frases": [
+        "the way they looked at you before they knew your name",
+        "love is just two people choosing each other daily",
+        "the small things matter more than the big gestures",
+        "when their laugh is your favorite sound",
+        "the kind of love that feels like home",
+        "you had me at the way you said my name",
+        "love isn't perfect it's choosing imperfect together",
+        "the best love stories are the quiet ones",
+        "when you find someone who understands your silence",
+        "real love is boring to everyone except the two people in it"
+      ]
+    },
+    "goodbye": {
+      "color": "#2f3542",
+      "frases": [
+        "i hope you're happy i really do",
+        "the last hug lasted a second too short",
+        "goodbye doesn't mean i stopped caring",
+        "some exits are really just entrances elsewhere",
+        "i'll carry you in my heart until i see you again",
+        "the hardest goodbyes are the ones without closure",
+        "thank you for the memories even the painful ones",
+        "letting go is loving them enough to set them free",
+        "the door is closed but not locked",
+        "i hope you find what i couldn't give you"
+      ]
+    }
+  },
+  "metadata": {
+    "last_updated": "2026-07-09",
+    "language": "en",
+    "target_platforms": [
+      "instagram",
+      "tiktok",
+      "facebook"
+    ],
+    "avg_words": 7,
+    "max_chars": 60
+  }
+}
